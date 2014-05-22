@@ -241,6 +241,11 @@ function run_module_audit() {
       'friendly_name' => 'PHP filter',
       'desired_status' => FALSE,
     ),
+    array(
+      'name' => 'fcl_utilities',
+      'friendly_name' => 'FCL utilities',
+      'desired_status' => TRUE,
+    ),
   );
 
   foreach ($modules as $module) {
@@ -398,5 +403,22 @@ function check_settings_file_options() {
   }
   else {
     output_info('Fast 404\'s are enabled.');
+  }
+  
+  // Make sure the New Relic application name is being set.
+  if (preg_match('/(newrelic_set_appname)/', $settings)) {
+    output_info('New Relic application name is set.');
+  }
+  else {
+    output_error('New Relic application settings not found.');
+  }
+
+  // Within Acquia the acquia_hosting_db_choose_active() method is responsible
+  // for detecting the current site and the database in use.
+  if (preg_match('/acquia_hosting_db_choose_active/', $settings)) {
+    output_info('Acquia database connection is defined.');
+  }
+  else {
+    output_error('Acquia database connection is missing.');
   }
 }
