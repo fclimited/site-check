@@ -100,6 +100,8 @@ function drush_site_check() {
   perform_security_audit();
   output_header_info("Analysing settings.php file...");
   check_settings_file_options();
+  output_header_info("Checking solr service configuration...");
+  check_solr_service_options();
 
   // Fire off the email if the parameters have been set for it.
   if (drush_get_option('email-report') && drush_get_option('email-address')) {
@@ -303,10 +305,10 @@ function run_cache_check() {
   }
 
   if (variable_get('page_cache_maximum_age') > 0) {
-    output_info('External page caching is enabled.');
+    output_error('External page caching should be disabled.');
   }
   else {
-    output_error('External page caching is disabled.');
+    output_info('External page caching is disabled.');
   }
 }
 
@@ -420,5 +422,30 @@ function check_settings_file_options() {
   }
   else {
     output_error('Acquia database connection is missing.');
+  }
+}
+
+/**
+ * Run some sanity checks against the Solr service and modules.
+ */
+function check_solr_service_options() {
+  $drush_domain = drush_get_option('domain');
+  $drush_uri = drush_get_option('uri');
+  $domain = (!empty($drush_domain)) ? $drush_domain : $drush_uri;
+
+  // This check is to ensure that the only domain that is indexing products to 
+  // the single solr index is fclmedia.com.
+  $indexing_products = (bool) db_select('apachesolr_index_bundles', 'aib')
+    ->fields('aib', array('env_id'))
+    ->condition('env_id', 'acquia_search_server_1', '=')
+    ->condition('bundle', 'fcl_procat_product', '=')
+    ->execute()
+    ->rowCount();
+    
+  if ($indexing_products && strpos($domain, 'fclmedia.com') !== FALSE) {
+    output_error('This domain should not be indexing products to the solr index.');
+  }
+  else {
+    output_info('This domain is not indexing products to the solr index.');
   }
 }
