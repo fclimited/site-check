@@ -442,7 +442,7 @@ function check_solr_service_options() {
     ->execute()
     ->rowCount();
     
-  if ($indexing_products && !preg_match('/fclmedia\.com/', $domain)) {
+  if ($indexing_products && strpos($domain, 'fclmedia.com') !== FALSE) {
     output_error('This domain should not be indexing products to the solr index.');
   }
   else {
