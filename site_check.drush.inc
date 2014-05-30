@@ -429,6 +429,10 @@ function check_settings_file_options() {
  * Run some sanity checks against the Solr service and modules.
  */
 function check_solr_service_options() {
+  if (!db_table_exists('apachesolr_index_bundles')) {
+    return FALSE;
+  }
+  
   $drush_domain = drush_get_option('domain');
   $drush_uri = drush_get_option('uri');
   $domain = (!empty($drush_domain)) ? $drush_domain : $drush_uri;
