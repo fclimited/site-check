@@ -98,8 +98,6 @@ function drush_site_check() {
   run_asset_check();
   output_header_info("Performing a security check...");
   perform_security_audit();
-  output_header_info("Analysing settings.php file...");
-  check_settings_file_options();
   output_header_info("Checking solr service configuration...");
   check_solr_service_options();
 
@@ -380,14 +378,6 @@ function perform_security_audit() {
   else {
     output_error('Error reporting is being shown to end users.');
   }
-}
-
-/**
- * Ensure the settings files contain some required lines.
- */
-function check_settings_file_options() {
-  $settings_path = conf_path() . '/settings.php';
-  $settings = file_get_contents($settings_path);
 
   // Ensure update.php is not accessible when a user is not authenticated.
   global $update_free_access;
@@ -396,32 +386,6 @@ function check_settings_file_options() {
   }
   else {
     output_error('Update.php is accessible to anonymous users.');
-  }
-
-  // Fast 404's prevent unnessecary bootstrap calls from being executed on a
-  // missing imagge or asset.
-  if (preg_match('/(# drupal_fast_404)/', $settings)) {
-    output_error('Fast 404\'s is disabled.');
-  }
-  else {
-    output_info('Fast 404\'s are enabled.');
-  }
-  
-  // Make sure the New Relic application name is being set.
-  if (preg_match('/(newrelic_set_appname)/', $settings)) {
-    output_info('New Relic application name is set.');
-  }
-  else {
-    output_error('New Relic application settings not found.');
-  }
-
-  // Within Acquia the acquia_hosting_db_choose_active() method is responsible
-  // for detecting the current site and the database in use.
-  if (preg_match('/acquia_hosting_db_choose_active/', $settings)) {
-    output_info('Acquia database connection is defined.');
-  }
-  else {
-    output_error('Acquia database connection is missing.');
   }
 }
 
@@ -432,12 +396,12 @@ function check_solr_service_options() {
   if (!db_table_exists('apachesolr_index_bundles')) {
     return FALSE;
   }
-  
+
   $drush_domain = drush_get_option('domain');
   $drush_uri = drush_get_option('uri');
   $domain = (!empty($drush_domain)) ? $drush_domain : $drush_uri;
 
-  // This check is to ensure that the only domain that is indexing products to 
+  // This check is to ensure that the only domain that is indexing products to
   // the single solr index is fclmedia.com.
   $indexing_products = (bool) db_select('apachesolr_index_bundles', 'aib')
     ->fields('aib', array('env_id'))
@@ -445,7 +409,7 @@ function check_solr_service_options() {
     ->condition('bundle', 'fcl_procat_product', '=')
     ->execute()
     ->rowCount();
-    
+
   if ($indexing_products && strpos($domain, 'fclmedia.com') === FALSE) {
     output_error('This domain should not be indexing products to the solr index.');
   }
