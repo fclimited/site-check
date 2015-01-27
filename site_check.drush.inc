@@ -387,6 +387,11 @@ function perform_security_audit() {
   else {
     output_error('Update.php is accessible to anonymous users.');
   }
+
+  // Check for any views without permissions.
+  if (module_exists('views')) {
+    check_views_permissions();
+  }
 }
 
 /**
@@ -415,5 +420,32 @@ function check_solr_service_options() {
   }
   else {
     output_info('This domain is not indexing products to the solr index.');
+  }
+}
+
+/**
+ * Check views permissions.
+ */
+function check_views_permissions() {
+  $unsafe_views = array();
+  $views = views_get_all_views();
+
+  foreach ($views as $view_name => $view_info) {
+    if (empty($view_info->display)) {
+      continue;
+    }
+
+    foreach ($view_info->display as $display_name => $display_info) {
+      if (!empty($display_info->display_options['access']['type']) && $display_info->display_options['access']['type'] == 'none') {
+        $unsafe_views[] = "{$view_name} ({$display_name})";
+      }
+    }
+  }
+
+  if (empty($unsafe_views)) {
+    output_info('All views have permissions assigned.');
+  }
+  else {
+    output_error('The following views are missing permissions: ' . implode(', ', $unsafe_views));
   }
 }
