@@ -7,7 +7,7 @@ assist in running a performance savvy Drupal website.
 
 ```bash
 cd ~/.drush
-git clone https://github.com/jacobbednarz/site-check.git
+git clone https://github.com/fclimited/site-check.git
 drush cache-clear drush
 ```
 
