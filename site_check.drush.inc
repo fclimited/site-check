@@ -295,18 +295,18 @@ function run_cache_check() {
     output_error('Block caching is disabled.');
   }
 
-  if (variable_get('cache_lifetime') > 0) {
-    output_info('Minimum cache lifetime is set.');
+  if (variable_get('cache_lifetime') = 0) {
+    output_info('Cache lifetime set to zero');
   }
   else {
-    output_error('Minimum cache lifetime is not set.');
+    output_error('Cache lifetime is not zero.');
   }
 
-  if (variable_get('page_cache_maximum_age') > 0) {
-    output_error('External page caching should be disabled.');
+  if (variable_get('page_cache_maximum_age') <= 3600) {
+    output_info('External page caching is enabled.');
   }
   else {
-    output_info('External page caching is disabled.');
+    output_error('External page caching is set too high (>3600).');
   }
 }
 
