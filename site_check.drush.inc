@@ -295,7 +295,7 @@ function run_cache_check() {
     output_error('Block caching is disabled.');
   }
 
-  if (variable_get('cache_lifetime') = 0) {
+  if (variable_get('cache_lifetime') == 0) {
     output_info('Cache lifetime set to zero');
   }
   else {
