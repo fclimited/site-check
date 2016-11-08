@@ -265,13 +265,15 @@ function run_module_audit() {
     ->condition('status', '0', '=')
     ->condition('schema_version', array(-1, 0), 'NOT IN')
     ->execute()
-    ->fetchAssoc();
+    ->fetchAll();
 
   if (empty($uninstalled_modules)) {
     output_info('There are no modules pending uninstallation.');
   }
   else {
-    output_error('There are modules that have not been completely uninstalled.');
+    foreach ($uninstalled_modules as $module) {
+      output_error("The '{$module->name}' module has not been completely uninstalled.");
+    }
   }
 }
 
